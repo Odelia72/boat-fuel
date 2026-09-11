@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>הדלק שלנו ⛵</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F4EFE6;
+    --surface: #FFFFFF;
+    --ink: #1B2845;
+    --ink-2: #243056;
+    --ink-soft: #5E6987;
+    --ink-faint: #9BA3B8;
+    --cream: #F4EFE6;
+    --cream-soft: rgba(244, 239, 230, 0.72);
+    --cream-faint: rgba(244, 239, 230, 0.40);
+    --accent: #B5523B;
+    --accent-soft: #F2DDD4;
+    --accent-deep: #8C3B27;
+    --line: #E2D8C7;
+    --line-strong: #CBC0AE;
+    --good: #4A7C59;
+    --good-soft: #E4EDE6;
+    --warn: #C98A2E;
+  }
+
+  body {
+    font-family: 'Heebo', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    font-feature-settings: "kern", "liga", "tnum";
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(27, 40, 69, 0.06) 0%, transparent 42%),
+      radial-gradient(circle at 90% 100%, rgba(181, 82, 59, 0.05) 0%, transparent 42%);
+  }
+
+  .app { max-width: 480px; margin: 0 auto; padding: 26px 20px 110px; }
+
+  /* ── Header ── */
+  .header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
+  .header-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+  .header-title .em { display: inline-block; margin-inline-start: 4px; font-size: 18px; }
+  .settings-pill {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 7px 13px; font-size: 12px; font-weight: 500; color: var(--ink-soft);
+    cursor: pointer; font-family: inherit; white-space: nowrap; transition: border-color .15s, color .15s;
+  }
+  .settings-pill:hover { border-color: var(--line-strong); color: var(--ink); }
+
+  /* ── Gauge hero ── */
+  .hero {
+    background: var(--ink); border-radius: 22px; padding: 22px 20px 20px;
+    color: var(--cream); text-align: center; position: relative; overflow: hidden;
+    box-shadow: 0 14px 34px -18px rgba(27, 40, 69, 0.55);
+  }
+  .hero::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 50% -10%, rgba(244,239,230,0.10), transparent 60%);
+  }
+  .hero-num { font-size: 86px; font-weight: 800; line-height: .92; letter-spacing: -0.05em; }
+  .hero-num .unit { font-size: 24px; font-weight: 500; color: var(--cream-soft); margin-inline-start: 6px; letter-spacing: 0; }
+  .hero-label { font-size: 14px; font-weight: 600; color: var(--cream-soft); margin-top: 9px; letter-spacing: -0.01em; }
+
+  .tank-bar { height: 13px; border-radius: 999px; background: rgba(244,239,230,0.15); overflow: hidden; margin: 18px 0 7px; }
+  .tank-fill { height: 100%; border-radius: 999px; transition: width .6s cubic-bezier(.22,.75,.24,1), background .4s; }
+  .tank-scale { display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 500; color: var(--cream-faint); }
+
+  .hero-second { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(244,239,230,0.16); }
+  .hero-second-num { font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -0.04em; }
+  .hero-second-num .unit { font-size: 17px; font-weight: 500; color: var(--cream-soft); margin-inline-start: 5px; letter-spacing: 0; }
+  .hero-second-label { font-size: 13px; font-weight: 500; color: var(--cream-soft); margin-top: 6px; }
+
+  .hero-note {
+    margin-top: 15px; padding: 10px 13px; border-radius: 12px; font-size: 12.5px; font-weight: 500;
+    display: flex; align-items: center; gap: 8px; justify-content: center; text-align: start;
+    background: rgba(244,239,230,0.10); border: 1px solid rgba(244,239,230,0.18);
+  }
+  .hero-note.alarm { background: rgba(181,82,59,0.24); border-color: rgba(224,136,104,0.42); }
+
+  /* ── Stats ── */
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; margin-top: 12px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 15px 10px; text-align: center; }
+  .stat-value { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--ink-faint); margin-top: 5px; font-weight: 500; }
+
+  /* ── Section ── */
+  .section-head { display: flex; align-items: center; justify-content: space-between; margin: 26px 0 12px; }
+  .section-title { font-size: 15px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  .head-actions { display: flex; gap: 7px; }
+  .add-btn {
+    background: var(--ink); color: var(--cream); border: none; border-radius: 999px;
+    padding: 9px 15px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background .15s, transform .1s;
+  }
+  .add-btn:hover { background: var(--ink-2); }
+  .add-btn:active { transform: scale(.97); }
+  .add-btn svg { width: 14px; height: 14px; }
+  .add-btn.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+  .add-btn.ghost:hover { background: var(--surface); border-color: var(--line-strong); }
+
+  /* ── Log rows ── */
+  .log { display: flex; flex-direction: column; gap: 8px; }
+  .row {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: 13px 15px; cursor: pointer; transition: border-color .15s, transform .1s;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .row:hover { border-color: var(--line-strong); }
+  .row:active { transform: scale(.995); }
+  .row.fuel { background: var(--good-soft); border-color: #CBDDD0; }
+  .row-main { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; min-width: 0; }
+  .row-date { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+  .row-sep { color: var(--line-strong); font-size: 12px; }
+  .row-dur { font-size: 13px; color: var(--ink-soft); font-weight: 500; }
+  .row-liters { font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .row.fuel .row-liters { color: var(--good); }
+  .row-after { font-size: 12px; color: var(--ink-faint); font-weight: 500; white-space: nowrap; }
+  .row-right { display: flex; align-items: center; gap: 9px; flex: none; }
+  .row-edit { width: 15px; height: 15px; color: var(--line-strong); flex: none; }
+  .row:hover .row-edit { color: var(--ink-soft); }
+  .log-hint { font-size: 12px; color: var(--ink-faint); margin: 0 2px 10px; }
+  .row-note { font-size: 12px; color: var(--ink-faint); margin-top: 3px; width: 100%; }
+
+  .empty { background: var(--surface); border: 1px dashed var(--line-strong); border-radius: 16px; padding: 34px 20px; text-align: center; }
+  .empty-icon { font-size: 30px; margin-bottom: 8px; }
+  .empty-main { font-size: 14px; font-weight: 600; }
+  .empty-sub { font-size: 12.5px; color: var(--ink-faint); margin-top: 4px; }
+
+  /* ── Modal ── */
+  .modal { position: fixed; inset: 0; background: rgba(27,40,69,0.44); backdrop-filter: blur(3px); display: none; align-items: flex-end; justify-content: center; z-index: 50; }
+  .modal.active { display: flex; }
+  .sheet {
+    background: var(--bg); width: 100%; max-width: 480px; border-radius: 22px 22px 0 0;
+    padding: 20px 20px calc(24px + env(safe-area-inset-bottom)); max-height: 92vh; overflow-y: auto;
+    animation: rise .24s cubic-bezier(.22,.75,.24,1);
+  }
+  @keyframes rise { from { transform: translateY(26px); opacity: .5; } to { transform: none; opacity: 1; } }
+  .sheet-title { font-size: 17px; font-weight: 700; margin: 0 0 16px; }
+
+  .kind-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; background: var(--surface); border: 1px solid var(--line); border-radius: 13px; padding: 5px; margin-bottom: 16px; }
+  .kind-btn { border: none; background: transparent; padding: 9px 6px; border-radius: 9px; font-family: inherit; font-size: 13.5px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+  .kind-btn.on { background: var(--ink); color: var(--cream); }
+
+  .field { margin-bottom: 14px; }
+  .field-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; }
+  input[type="date"], input[type="number"], input[type="text"] {
+    width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 11px;
+    padding: 11px 13px; font-family: inherit; font-size: 15px; color: var(--ink); -webkit-appearance: none;
+  }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .chip { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-family: inherit; font-size: 12.5px; font-weight: 500; color: var(--ink-soft); cursor: pointer; }
+  .chip:hover { border-color: var(--line-strong); color: var(--ink); }
+
+  .preview { background: var(--accent-soft); border-radius: 12px; padding: 11px 13px; font-size: 13px; font-weight: 600; color: var(--accent-deep); margin-bottom: 16px; }
+  .preview.fuel { background: var(--good-soft); color: var(--good); }
+
+  .sheet-actions { display: flex; gap: 9px; margin-top: 4px; }
+  .btn { flex: 1; padding: 13px; border-radius: 12px; font-family: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+  .btn-primary { background: var(--ink); color: var(--cream); }
+  .btn-secondary { background: var(--surface); color: var(--ink); border-color: var(--line); }
+  .btn-danger { background: transparent; color: var(--accent); border-color: var(--accent-soft); flex: 0 0 auto; padding: 13px 16px; }
+  .hint { font-size: 12px; color: var(--ink-faint); margin-top: 14px; line-height: 1.5; }
+  .hint b { color: var(--ink-soft); font-weight: 600; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1 class="header-title">הדלק שלנו<span class="em">⛵</span></h1>
+    <button class="settings-pill" onclick="openSettings()" id="settingsPill">טנק 78 ל׳ · 2 ל׳/שעה</button>
+  </div>
+
+  <div class="hero" id="hero"></div>
+  <div class="stats" id="stats"></div>
+
+  <div class="section-head">
+    <h2 class="section-title">היומן</h2>
+    <div class="head-actions">
+      <button class="add-btn ghost" onclick="openAdd('fuel')">⛽ תדלוק</button>
+      <button class="add-btn" onclick="openAdd('sail')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        הפלגה
+      </button>
+    </div>
+  </div>
+
+  <p class="log-hint">לחיצה על שורה פותחת עריכה ומחיקה ✏️</p>
+  <div class="log" id="log"></div>
+</div>
+
+<div class="modal" id="modal" onclick="backdrop(event)">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+  const KEY = 'boat_fuel_v1';
+  const DEFAULTS = { capacity: 78, rate: 2, start: 78 };
+  let state = { settings: { ...DEFAULTS }, entries: [] };
+  let draft = {};
+
+  /* ── Storage: works both inside Claude and as a plain file / GitHub Pages ── */
+  async function load() {
+    let raw = null;
+    try { if (window.storage) { const r = await window.storage.get(KEY); if (r && r.value) raw = r.value; } } catch (e) {}
+    if (!raw) { try { raw = localStorage.getItem(KEY); } catch (e) {} }
+    if (raw) {
+      try {
+        const p = JSON.parse(raw);
+        state.settings = { ...DEFAULTS, ...(p.settings || {}) };
+        state.entries = Array.isArray(p.entries) ? p.entries : [];
+      } catch (e) {}
+    }
+  }
+  async function save() {
+    const json = JSON.stringify(state);
+    try { if (window.storage) await window.storage.set(KEY, json); } catch (e) {}
+    try { localStorage.setItem(KEY, json); } catch (e) {}
+  }
+
+  /* ── Helpers ── */
+  const PENCIL = `<svg class="row-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
+
+  const uid = () => Math.random().toString(36).slice(2, 10);
+  const todayISO = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+
+  function fmtNum(n) {
+    const r = Math.round(n * 10) / 10;
+    return Number.isInteger(r) ? String(r) : r.toFixed(1);
+  }
+  function fmtDate(iso) {
+    const [y, m, d] = iso.split('-');
+    return `${+d}.${+m}`;
+  }
+  function fmtDur(min) {
+    const h = Math.floor(min / 60), m = min % 60;
+    if (h && m) return `${h}:${String(m).padStart(2, '0')} שעות`;
+    if (h) return h === 1 ? 'שעה' : `${h} שעות`;
+    return `${m} דקות`;
+  }
+
+  /* ── The core calculation: walk the log in date order, track the tank ── */
+  function compute() {
+    const { capacity, rate, start } = state.settings;
+    const sorted = [...state.entries].sort((a, b) =>
+      a.date === b.date ? (a.created || 0) - (b.created || 0) : a.date.localeCompare(b.date));
+
+    let level = Math.min(start, capacity);
+    let used = 0, minutes = 0, added = 0, sails = 0;
+    const after = {};
+
+    for (const e of sorted) {
+      if (e.kind === 'fuel') {
+        const l = +e.liters || 0;
+        added += l;
+        level = Math.min(capacity, level + l);
+      } else {
+        const l = ((+e.minutes || 0) / 60) * rate;
+        used += l; minutes += (+e.minutes || 0); sails++;
+        level = Math.max(0, level - l);
+      }
+      after[e.id] = level;
+    }
+    return { level, used, minutes, added, sails, after, sorted };
+  }
+
+  /* ── Render ── */
+  function render() {
+    const { capacity, rate } = state.settings;
+    const c = compute();
+    const pct = capacity > 0 ? Math.max(0, Math.min(1, c.level / capacity)) : 0;
+    const hoursLeft = rate > 0 ? c.level / rate : 0;
+
+    document.getElementById('settingsPill').textContent =
+      `טנק ${fmtNum(capacity)} ל׳ · ${fmtNum(rate)} ל׳/שעה`;
+
+    const barColor = pct <= 0.15 ? '#E08868' : pct <= 0.35 ? '#E8B75F' : '#7FB08D';
+
+    let note = '';
+    if (c.level <= 0) {
+      note = `<div class="hero-note alarm"><span>⛽</span><span>לפי היומן הטנק ריק. צריך לתדלק לפני ההפלגה הבאה.</span></div>`;
+    } else if (pct <= 0.15) {
+      note = `<div class="hero-note alarm"><span>⛽</span><span>פחות מ־15% בטנק — ${fmtNum(hoursLeft)} שעות מנוע. כדאי לתדלק.</span></div>`;
+    } else if (pct <= 0.35) {
+      note = `<div class="hero-note"><span>👀</span><span>נשארו ${fmtNum(hoursLeft)} שעות מנוע. שווה לתכנן תדלוק בעגינה הבאה.</span></div>`;
+    }
+
+    document.getElementById('hero').innerHTML = `
+      <div class="hero-num">${fmtNum(c.level)}<span class="unit">ליטר</span></div>
+      <div class="hero-label">נשארו בטנק</div>
+      <div class="tank-bar"><div class="tank-fill" style="width:${(pct * 100).toFixed(1)}%;background:${barColor}"></div></div>
+      <div class="tank-scale"><span>ריק</span><span>${fmtNum(capacity)} ליטר</span></div>
+      <div class="hero-second">
+        <div class="hero-second-num">${fmtNum(hoursLeft)}<span class="unit">שעות</span></div>
+        <div class="hero-second-label">מנוע שנשארו עד שהטנק נגמר</div>
+      </div>
+      ${note}
+    `;
+
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="stat-value">${fmtNum(c.used)}</div><div class="stat-label">ליטר שנצרכו</div></div>
+      <div class="stat"><div class="stat-value">${fmtNum(c.minutes / 60)}</div><div class="stat-label">שעות מנוע</div></div>
+    `;
+
+    const log = document.getElementById('log');
+    if (!state.entries.length) {
+      log.innerHTML = `<div class="empty">
+        <div class="empty-icon">⛵</div>
+        <div class="empty-main">היומן עוד ריק</div>
+        <div class="empty-sub">אחרי ההפלגה הראשונה לחצי על ״הפלגה״ ורשמי כמה זמן המנוע עבד</div>
+      </div>`;
+      return;
+    }
+
+    log.innerHTML = [...c.sorted].reverse().map(e => {
+      if (e.kind === 'fuel') {
+        return `<div class="row fuel" onclick="openEdit('${e.id}')">
+          <div class="row-main">
+            <span class="row-date">${fmtDate(e.date)}</span>
+            <span class="row-sep">·</span>
+            <span class="row-dur">⛽ תדלוק</span>
+            <span class="row-liters">+${fmtNum(e.liters)} ל׳</span>
+            ${e.note ? `<div class="row-note">${escapeHtml(e.note)}</div>` : ''}
+          </div>
+          <div class="row-right">
+            <span class="row-after">טנק ${fmtNum(c.after[e.id])} ל׳</span>
+            ${PENCIL}
+          </div>
+        </div>`;
+      }
+      const liters = ((+e.minutes || 0) / 60) * state.settings.rate;
+      return `<div class="row" onclick="openEdit('${e.id}')">
+        <div class="row-main">
+          <span class="row-date">${fmtDate(e.date)}</span>
+          <span class="row-sep">·</span>
+          <span class="row-dur">${fmtDur(+e.minutes || 0)}</span>
+          <span class="row-liters">−${fmtNum(liters)} ל׳</span>
+          ${e.note ? `<div class="row-note">${escapeHtml(e.note)}</div>` : ''}
+        </div>
+        <div class="row-right">
+          <span class="row-after">טנק ${fmtNum(c.after[e.id])} ל׳</span>
+          ${PENCIL}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  }
+
+  /* ── Add / edit sheet ── */
+  function openAdd(kind) {
+    draft = { id: null, kind, date: todayISO(), hours: '', mins: '', liters: '', note: '' };
+    renderSheet();
+  }
+  function openEdit(id) {
+    const e = state.entries.find(x => x.id === id);
+    if (!e) return;
+    draft = {
+      id: e.id, kind: e.kind, date: e.date, note: e.note || '',
+      hours: e.kind === 'sail' ? String(Math.floor((+e.minutes || 0) / 60)) : '',
+      mins: e.kind === 'sail' ? String((+e.minutes || 0) % 60) : '',
+      liters: e.kind === 'fuel' ? String(e.liters) : ''
+    };
+    renderSheet();
+  }
+
+  function draftMinutes() {
+    const h = parseFloat(draft.hours) || 0;
+    const m = parseFloat(draft.mins) || 0;
+    return Math.max(0, Math.round(h * 60 + m));
+  }
+
+  function renderSheet() {
+    const isFuel = draft.kind === 'fuel';
+    const min = draftMinutes();
+    const liters = (min / 60) * state.settings.rate;
+    const c = compute();
+
+    const body = isFuel ? `
+      <div class="field">
+        <label class="field-label" for="fLiters">כמה ליטר מילאנו</label>
+        <input type="number" id="fLiters" inputmode="decimal" min="0" step="0.5" value="${draft.liters}"
+               placeholder="0" oninput="draft.liters=this.value; refreshPreview()">
+        <div class="chips">
+          <button class="chip" onclick="setLiters(${state.settings.capacity})">טנק מלא (${fmtNum(state.settings.capacity)})</button>
+          <button class="chip" onclick="setLiters(20)">20</button>
+          <button class="chip" onclick="setLiters(40)">40</button>
+        </div>
+      </div>` : `
+      <div class="field">
+        <label class="field-label">כמה זמן עבד המנוע</label>
+        <div class="duo">
+          <input type="number" inputmode="decimal" min="0" max="24" step="0.5" value="${draft.hours}" placeholder="שעות"
+                 oninput="draft.hours=this.value; refreshPreview()">
+          <input type="number" inputmode="numeric" min="0" max="59" value="${draft.mins}" placeholder="דקות"
+                 oninput="draft.mins=this.value; refreshPreview()">
+        </div>
+        <div class="chips">
+          <button class="chip" onclick="setDur(0,30)">30 ד׳</button>
+          <button class="chip" onclick="setDur(0,45)">45 ד׳</button>
+          <button class="chip" onclick="setDur(1,0)">שעה</button>
+          <button class="chip" onclick="setDur(1,30)">1:30</button>
+          <button class="chip" onclick="setDur(2,0)">2 שעות</button>
+          <button class="chip" onclick="setDur(3,0)">3 שעות</button>
+        </div>
+      </div>`;
+
+    const preview = isFuel
+      ? `<div class="preview fuel" id="preview">${previewFuelText()}</div>`
+      : `<div class="preview" id="preview">${previewSailText()}</div>`;
+
+    document.getElementById('sheet').innerHTML = `
+      <h3 class="sheet-title">${draft.id ? 'עריכת רשומה' : (isFuel ? 'תדלוק' : 'הפלגה חדשה')}</h3>
+      ${draft.id ? '' : `<div class="kind-toggle">
+        <button class="kind-btn ${!isFuel ? 'on' : ''}" onclick="switchKind('sail')">⛵ הפלגה</button>
+        <button class="kind-btn ${isFuel ? 'on' : ''}" onclick="switchKind('fuel')">⛽ תדלוק</button>
+      </div>`}
+      <div class="field">
+        <label class="field-label" for="fDate">תאריך</label>
+        <input type="date" id="fDate" value="${draft.date}" oninput="draft.date=this.value">
+      </div>
+      ${body}
+      ${preview}
+      <div class="field">
+        <label class="field-label" for="fNote">הערה (לא חייב)</label>
+        <input type="text" id="fNote" value="${escapeHtml(draft.note)}" placeholder="למשל: מהמרינה לאי ובחזרה" oninput="draft.note=this.value">
+      </div>
+      <div class="sheet-actions">
+        <button class="btn btn-primary" onclick="commit()">שמירה</button>
+        <button class="btn btn-secondary" onclick="closeModal()">ביטול</button>
+        ${draft.id ? `<button class="btn btn-danger" onclick="removeEntry()">מחיקה</button>` : ''}
+      </div>
+    `;
+    document.getElementById('modal').classList.add('active');
+  }
+
+  function previewSailText() {
+    const min = draftMinutes();
+    if (!min) return `לפי ${fmtNum(state.settings.rate)} ליטר לשעה — רשמי משך והמספר יופיע כאן`;
+    const liters = (min / 60) * state.settings.rate;
+    return `${fmtDur(min)} × ${fmtNum(state.settings.rate)} ל׳ = ${fmtNum(liters)} ליטר`;
+  }
+  function previewFuelText() {
+    const l = parseFloat(draft.liters);
+    if (!l) return `רשמי כמה ליטר מילאנו והטנק יתעדכן`;
+    return `+${fmtNum(l)} ליטר לטנק`;
+  }
+  function refreshPreview() {
+    const p = document.getElementById('preview');
+    if (p) p.innerHTML = draft.kind === 'fuel' ? previewFuelText() : previewSailText();
+  }
+  function setDur(h, m) { draft.hours = String(h); draft.mins = String(m); renderSheet(); }
+  function setLiters(l) { draft.liters = String(l); renderSheet(); }
+  function switchKind(k) { draft.kind = k; renderSheet(); }
+
+  async function commit() {
+    if (!draft.date) { alert('צריך לבחור תאריך'); return; }
+    let entry;
+    if (draft.kind === 'fuel') {
+      const l = parseFloat(draft.liters);
+      if (!l || l <= 0) { alert('צריך לרשום כמה ליטר מילאנו'); return; }
+      entry = { kind: 'fuel', date: draft.date, liters: l, note: draft.note.trim() };
+    } else {
+      const min = draftMinutes();
+      if (!min) { alert('צריך לרשום כמה זמן עבד המנוע'); return; }
+      entry = { kind: 'sail', date: draft.date, minutes: min, note: draft.note.trim() };
+    }
+    if (draft.id) {
+      const i = state.entries.findIndex(x => x.id === draft.id);
+      state.entries[i] = { ...state.entries[i], ...entry };
+    } else {
+      state.entries.push({ id: uid(), created: Date.now(), ...entry });
+    }
+    await save(); closeModal(); render();
+  }
+
+  async function removeEntry() {
+    if (!confirm('למחוק את הרשומה?')) return;
+    state.entries = state.entries.filter(x => x.id !== draft.id);
+    await save(); closeModal(); render();
+  }
+
+  /* ── Settings ── */
+  function openSettings() {
+    const s = state.settings;
+    document.getElementById('sheet').innerHTML = `
+      <h3 class="sheet-title">הגדרות הסירה</h3>
+      <div class="field">
+        <label class="field-label" for="sCap">גודל הטנק (ליטר)</label>
+        <input type="number" id="sCap" inputmode="decimal" min="1" step="1" value="${s.capacity}">
+      </div>
+      <div class="field">
+        <label class="field-label" for="sRate">צריכה לשעת מנוע (ליטר)</label>
+        <input type="number" id="sRate" inputmode="decimal" min="0.1" step="0.1" value="${s.rate}">
+      </div>
+      <div class="field">
+        <label class="field-label" for="sStart">מפלס בתחילת המעקב (ליטר)</label>
+        <input type="number" id="sStart" inputmode="decimal" min="0" step="1" value="${s.start}">
+      </div>
+      <div class="sheet-actions">
+        <button class="btn btn-primary" onclick="saveSettings()">שמירה</button>
+        <button class="btn btn-secondary" onclick="closeModal()">ביטול</button>
+      </div>
+      <div class="sheet-actions" style="margin-top:9px">
+        <button class="btn btn-secondary" onclick="exportData()">גיבוי (העתקה)</button>
+        <button class="btn btn-secondary" onclick="openRestore()">שחזור</button>
+      </div>
+      <div class="sheet-actions" style="margin-top:9px">
+        <button class="btn btn-danger" style="flex:1" onclick="wipe()">איפוס הכל</button>
+      </div>
+      <p class="hint">אם מסתבר שהצריכה בפועל שונה — שנו את המספר כאן וכל היומן יחושב מחדש. <b>מפלס בתחילת המעקב</b> הוא מה שהיה בטנק לפני הרשומה הראשונה.<br><br><b>גיבוי</b> נותן קוד טקסט קצר להעתקה — שלחו אותו לעצמכם בוואטסאפ. <b>שחזור</b> מדביק אותו חזרה בכתובת חדשה או במכשיר אחר.</p>
+    `;
+    document.getElementById('modal').classList.add('active');
+  }
+
+  async function saveSettings() {
+    const cap = parseFloat(document.getElementById('sCap').value);
+    const rate = parseFloat(document.getElementById('sRate').value);
+    const start = parseFloat(document.getElementById('sStart').value);
+    if (!(cap > 0) || !(rate > 0) || !(start >= 0)) { alert('צריך מספרים חיוביים בכל השדות'); return; }
+    state.settings = { capacity: cap, rate, start: Math.min(start, cap) };
+    await save(); closeModal(); render();
+  }
+
+  /* Compact text backup — works where file downloads are blocked */
+  function encodeBackup() {
+    const s = state.settings;
+    const lines = ['FUEL1', `C${fmtNum(s.capacity)} R${fmtNum(s.rate)} S${fmtNum(s.start)}`];
+    const sorted = [...state.entries].sort((a, b) =>
+      a.date === b.date ? (a.created || 0) - (b.created || 0) : a.date.localeCompare(b.date));
+    for (const e of sorted) {
+      lines.push(e.kind === 'fuel'
+        ? `F ${e.date} ${fmtNum(+e.liters || 0)}`
+        : `S ${e.date} ${Math.round(+e.minutes || 0)}`);
+    }
+    return lines.join('\n');
+  }
+
+  function decodeBackup(text) {
+    const lines = String(text).split(/[\r\n]+/).map(l => l.trim()).filter(Boolean);
+    let settings = null;
+    const entries = [];
+    let n = 0;
+    for (const line of lines) {
+      if (/^FUEL1$/i.test(line)) continue;
+      const set = line.match(/^C\s*([\d.]+)\s+R\s*([\d.]+)\s+S\s*([\d.]+)$/i);
+      if (set) {
+        settings = { capacity: +set[1], rate: +set[2], start: +set[3] };
+        continue;
+      }
+      const m = line.match(/^([SF])\s+(\d{4}-\d{2}-\d{2})\s+([\d.]+)$/i);
+      if (!m) continue;
+      const kind = m[1].toUpperCase() === 'F' ? 'fuel' : 'sail';
+      const val = parseFloat(m[3]);
+      if (!(val > 0)) continue;
+      entries.push({
+        id: uid(), created: Date.now() + (n++), kind, date: m[2], note: '',
+        minutes: kind === 'sail' ? Math.round(val) : undefined,
+        liters: kind === 'fuel' ? val : undefined
+      });
+    }
+    return { settings, entries };
+  }
+
+  function exportData() {
+    const code = encodeBackup();
+    document.getElementById('sheet').innerHTML = `
+      <h3 class="sheet-title">גיבוי היומן</h3>
+      <p class="hint" style="margin:0 0 12px">זה כל היומן שלך כטקסט. לחצי <b>העתקה</b>, ואז שלחי לעצמך בוואטסאפ או במייל כדי שיישמר. בכתובת החדשה תדביקי אותו ב״שחזור״.</p>
+      <textarea id="backupBox" readonly rows="9" onclick="this.select()"
+        style="width:100%;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 13px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--ink);direction:ltr;text-align:left;resize:vertical">${escapeHtml(code)}</textarea>
+      <div id="copyMsg" class="hint" style="margin-top:8px"></div>
+      <div class="sheet-actions" style="margin-top:12px">
+        <button class="btn btn-primary" onclick="copyBackup()">העתקה</button>
+        <button class="btn btn-secondary" onclick="openSettings()">חזרה</button>
+      </div>
+      <p class="hint">אם ההעתקה לא עובדת — לחצי על הטקסט, הוא ייבחר כולו, ואז לחיצה ארוכה ← העתק.</p>
+    `;
+  }
+
+  function copyBackup() {
+    const box = document.getElementById('backupBox');
+    const msg = document.getElementById('copyMsg');
+    box.select(); box.setSelectionRange(0, 99999);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    if (!ok && navigator.clipboard) {
+      navigator.clipboard.writeText(box.value).then(
+        () => { msg.innerHTML = '<b>הועתק ✅</b> עכשיו הדביקי את זה אצלך בוואטסאפ/מייל'; },
+        () => { msg.innerHTML = 'ההעתקה נחסמה. לחצי על הטקסט ואז לחיצה ארוכה ← העתק'; });
+      return;
+    }
+    msg.innerHTML = ok
+      ? '<b>הועתק ✅</b> עכשיו הדביקי את זה אצלך בוואטסאפ/מייל'
+      : 'ההעתקה נחסמה. לחצי על הטקסט ואז לחיצה ארוכה ← העתק';
+  }
+
+  function openRestore() {
+    document.getElementById('sheet').innerHTML = `
+      <h3 class="sheet-title">שחזור יומן</h3>
+      <p class="hint" style="margin:0 0 12px">הדביקי כאן את קוד הגיבוי ששמרת, ולחצי שחזור.</p>
+      <textarea id="restoreBox" rows="9" placeholder="FUEL1&#10;C78 R2 S78&#10;S 2026-08-04 150"
+        style="width:100%;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 13px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--ink);direction:ltr;text-align:left;resize:vertical"></textarea>
+      <div class="sheet-actions" style="margin-top:12px">
+        <button class="btn btn-primary" onclick="restoreFromText()">שחזור</button>
+        <button class="btn btn-secondary" onclick="openSettings()">חזרה</button>
+      </div>
+      <p class="hint">אפשר גם לשחזר מקובץ גיבוי ישן: <b onclick="document.getElementById('restoreFile').click()" style="color:var(--accent);cursor:pointer">בחירת קובץ JSON</b></p>
+      <input type="file" id="restoreFile" accept=".json,application/json,text/plain" style="display:none" onchange="importData(this)">
+    `;
+  }
+
+  async function restoreFromText() {
+    const text = document.getElementById('restoreBox').value;
+    if (!text.trim()) { alert('צריך להדביק את קוד הגיבוי.'); return; }
+    const p = decodeBackup(text);
+    if (!p.entries.length) { alert('לא זיהיתי רשומות בטקסט. ודאי שהעתקת את כל הקוד, כולל השורות שמתחילות ב-S או F.'); return; }
+    if (!confirm(`נמצאו ${p.entries.length} רשומות.\nהשחזור יחליף את מה שרשום עכשיו. להמשיך?`)) return;
+    state.entries = p.entries;
+    if (p.settings) state.settings = { ...DEFAULTS, ...p.settings };
+    await save(); closeModal(); render();
+    alert(`שוחזרו ${p.entries.length} רשומות ✅`);
+  }
+
+  function importData(input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const p = JSON.parse(reader.result);
+        const entries = Array.isArray(p.entries) ? p.entries : null;
+        if (!entries) throw new Error('bad');
+
+        const clean = entries.filter(e => e && e.date && (e.kind === 'fuel' || e.kind === 'sail'))
+          .map(e => ({
+            id: e.id || uid(),
+            created: e.created || Date.now(),
+            kind: e.kind,
+            date: e.date,
+            minutes: e.kind === 'sail' ? (+e.minutes || 0) : undefined,
+            liters: e.kind === 'fuel' ? (+e.liters || 0) : undefined,
+            note: e.note || ''
+          }));
+
+        if (!clean.length) { alert('לא נמצאו רשומות בקובץ.'); input.value = ''; return; }
+        if (!confirm(`הקובץ מכיל ${clean.length} רשומות.\nהשחזור ימחק את מה שרשום עכשיו ויחליף אותו. להמשיך?`)) { input.value = ''; return; }
+
+        state.entries = clean;
+        state.settings = { ...DEFAULTS, ...(p.settings || {}) };
+        await save(); closeModal(); render();
+        alert(`שוחזרו ${clean.length} רשומות ✅`);
+      } catch (err) {
+        alert('לא הצלחתי לקרוא את הקובץ. ודאי שזה קובץ הגיבוי שיצא מהאפליקציה (fuel-backup-....json).');
+      }
+      input.value = '';
+    };
+    reader.onerror = () => { alert('לא הצלחתי לפתוח את הקובץ.'); input.value = ''; };
+    reader.readAsText(file);
+  }
+
+  async function wipe() {
+    if (!confirm('למחוק את כל היומן? אין דרך חזרה.')) return;
+    state = { settings: { ...DEFAULTS }, entries: [] };
+    await save(); closeModal(); render();
+  }
+
+  function closeModal() { document.getElementById('modal').classList.remove('active'); }
+  function backdrop(e) { if (e.target.id === 'modal') closeModal(); }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  (async function init() { await load(); render(); })();
+</script>
+</body>
+</html>
